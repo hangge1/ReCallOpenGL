@@ -1,0 +1,8 @@
+D:/github/ReCallOpenGL/glfw-3.4/install/lib/glfw3.lib
+D:/github/ReCallOpenGL/glfw-3.4/install/include/GLFW/glfw3.h
+D:/github/ReCallOpenGL/glfw-3.4/install/include/GLFW/glfw3native.h
+D:/github/ReCallOpenGL/glfw-3.4/install/lib/cmake/glfw3/glfw3Config.cmake
+D:/github/ReCallOpenGL/glfw-3.4/install/lib/cmake/glfw3/glfw3ConfigVersion.cmake
+D:/github/ReCallOpenGL/glfw-3.4/install/lib/cmake/glfw3/glfw3Targets.cmake
+D:/github/ReCallOpenGL/glfw-3.4/install/lib/cmake/glfw3/glfw3Targets-debug.cmake
+D:/github/ReCallOpenGL/glfw-3.4/install/lib/pkgconfig/glfw3.pc

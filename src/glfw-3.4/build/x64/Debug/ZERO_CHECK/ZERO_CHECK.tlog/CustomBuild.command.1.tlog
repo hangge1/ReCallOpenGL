@@ -1,0 +1,10 @@
+^D:\GITHUB\RECALLOPENGL\GLFW-3.4\BUILD\CMAKEFILES\76AFAE492758EA05E49844BB4CCBC78D\GENERATE.STAMP.RULE
+setlocal
+C:\Software\cmake\bin\cmake.exe -SD:/github/ReCallOpenGL/glfw-3.4 -BD:/github/ReCallOpenGL/glfw-3.4/build --check-stamp-list CMakeFiles/generate.stamp.list --vs-solution-file D:/github/ReCallOpenGL/glfw-3.4/build/GLFW.sln
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
