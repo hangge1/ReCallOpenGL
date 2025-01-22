@@ -106,26 +106,18 @@ int main()
     glfwSetCursorPosCallback(window, mouse_callback);
 
 
-    Shader myShader("shader/shader.vs", "shader/shader.fs");
-    myShader.use();
-
-    Texture boxtexture("resource/container.jpg", 1);
-    Texture facetexture("resource/awesomeface.png", 2);
-
-    boxtexture.use();
-    myShader.setInt("boxTexture", 1);
-
-    facetexture.use();
-    myShader.setInt("faceTexture", 2);
-
-    glm::mat4 model = glm::rotate(glm::mat4(1.0f), glm::radians(-55.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-    glm::mat4 view = camera.GetViewMatrix();
     glm::mat4 projection = glm::perspective(glm::radians(45.0f), (float)SCREEN_WIDTH / SCREEN_HEIGHT, 0.1f, 100.0f);
-
-    myShader.setMat4("model", model);
-    myShader.setMat4("view", view);
-    myShader.setMat4("projection", projection);
+    Shader lightShader("shader/lightshader.vs", "shader/lightshader.fs");
+    lightShader.use();
+    lightShader.setMat4("projection", projection);
     
+    Shader objShader("shader/objectshader.vs", "shader/objectshader.fs");
+    objShader.use();
+    objShader.setMat4("projection", projection);
+
+    objShader.use();
+    objShader.setVec3("objectColor", {1.0f, 0.5f, 0.31f});
+    objShader.setVec3("lightColor",  {1.0f, 1.0f, 1.0f});
 
     float vertices[] = 
     {
@@ -172,18 +164,6 @@ int main()
         -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
     };
 
-    glm::vec3 cubePositions[] = {
-      glm::vec3( 0.0f,  0.0f,  0.0f), 
-      glm::vec3( 2.0f,  5.0f, -15.0f), 
-      glm::vec3(-1.5f, -2.2f, -2.5f),  
-      glm::vec3(-3.8f, -2.0f, -12.3f),  
-      glm::vec3( 2.4f, -0.4f, -3.5f),  
-      glm::vec3(-1.7f,  3.0f, -7.5f),  
-      glm::vec3( 1.3f, -2.0f, -2.5f),  
-      glm::vec3( 1.5f,  2.0f, -2.5f), 
-      glm::vec3( 1.5f,  0.2f, -1.5f), 
-      glm::vec3(-1.3f,  1.0f, -1.5f)  
-    };
 
     unsigned int indices[] = 
     {
@@ -191,9 +171,10 @@ int main()
         2, 3, 0
     };
 
-    unsigned int VAO;
-    glGenVertexArrays(1, &VAO);
-    glBindVertexArray(VAO);
+    //定义灯
+    unsigned int lightVAO;
+    glGenVertexArrays(1, &lightVAO);
+    glBindVertexArray(lightVAO);
 
     unsigned int VBO; //存储顶点数据, 且解释顶点属性
     glGenBuffers(1, &VBO);
@@ -208,12 +189,11 @@ int main()
     //属性0由三个float组成
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
-
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
-    glEnableVertexAttribArray(1);
-
-    
     glBindVertexArray(0); 
+
+
+    glm::vec3 lightPos(1.0f, 0.0f, 1.0f);
+    glm::vec3 objPos(0.0f, 0.0f, 0.0f);
 
     while(!glfwWindowShouldClose(window))
     {
@@ -222,20 +202,25 @@ int main()
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        myShader.use();
-        myShader.setMat4("view", camera.GetViewMatrix());
-
-        for(int i = 0; i < 10; i++)
-        {
-            model = glm::translate(glm::mat4(1.0f), cubePositions[i]);
-            model = glm::rotate(model, (float)glfwGetTime() * glm::radians((i+1) * 10.f), glm::vec3(0.5f, 1.0f, 0.0f));
-            myShader.setMat4("model", model);
-
-            glBindVertexArray(VAO);
-            //glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-            glDrawArrays(GL_TRIANGLES, 0, 36);
-        }
+        //绘制光源
+        glm::mat4 lightmodel = glm::translate(glm::mat4(1.0f), lightPos);
+        lightmodel = glm::scale(lightmodel, glm::vec3(0.2f));
+        lightShader.use();
+        lightShader.setMat4("view", camera.GetViewMatrix());
+        lightShader.setMat4("model", lightmodel);
+        glBindVertexArray(lightVAO);
+        glDrawArrays(GL_TRIANGLES, 0, 36);
         
+        //绘制物体
+        glm::mat4 objmodel = glm::translate(glm::mat4(1.0f), objPos);
+        objmodel = glm::scale(objmodel, glm::vec3(0.2f));
+        objShader.use();
+        objShader.setMat4("model", objmodel);
+        objShader.setMat4("view", camera.GetViewMatrix());
+        glBindVertexArray(lightVAO);
+        glDrawArrays(GL_TRIANGLES, 0, 36);
+
+
 
         glfwSwapBuffers(window);
         glfwPollEvents();    

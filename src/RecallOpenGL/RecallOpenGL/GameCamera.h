@@ -68,7 +68,7 @@ public:
             cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
         }
 
-        cameraPos.y = 0.0f;
+        //cameraPos.y = 0.0f;
     }
 
     void MouseCallback(float xoffset, float yoffset, float deltaTime)
