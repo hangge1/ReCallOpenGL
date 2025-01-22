@@ -11,6 +11,7 @@
 #include <iostream>
 #include "Shader.h"
 #include "Texture.h"
+#include "GameCamera.h"
 
 #define SCREEN_WIDTH 800
 #define SCREEN_HEIGHT 600
@@ -18,8 +19,6 @@
 float deltaTime = 0.0f; // 当前帧与上一帧的时间差
 float lastFrame = 0.0f; // 上一帧的时间
 float lastX = SCREEN_WIDTH / 2, lastY = SCREEN_HEIGHT / 2;
-float pitch = 0.0f;
-float yaw = -90.0f;
 bool firstMouse = true;
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
@@ -31,23 +30,22 @@ glm::vec3 cameraPos   = glm::vec3(0.0f, 0.0f,  3.0f);
 glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
 glm::vec3 cameraUp    = glm::vec3(0.0f, 1.0f,  0.0f);
 
+GameCamera camera(cameraPos, cameraFront, cameraUp);
+
 void processInput(GLFWwindow *window)
 {
     if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
 
     //本质上就是改变CameraPos
-    float cameraSpeed = 2.5f * deltaTime; // adjust accordingly
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-        cameraPos += cameraSpeed * cameraFront;
+        camera.KeyCallback(GLFW_KEY_W, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-        cameraPos -= cameraSpeed * cameraFront;
+        camera.KeyCallback(GLFW_KEY_S, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-        cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+        camera.KeyCallback(GLFW_KEY_A, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-        cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
-
-
+        camera.KeyCallback(GLFW_KEY_D, deltaTime);
 }
 
 
@@ -95,23 +93,7 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
     lastX = xpos;
     lastY = ypos;
 
-    float sensitivity = 2.5f * deltaTime;
-    xoffset *= sensitivity;
-    yoffset *= sensitivity;
-
-    yaw   += xoffset;
-    pitch += yoffset;
-
-    if(pitch > 89.0f) //pitch需要限制, 但是yaw不需要, 可以环顾四周
-      pitch =  89.0f;
-    if(pitch < -89.0f)
-      pitch = -89.0f;
-
-    glm::vec3 front;
-    front.x = cos(glm::radians(pitch)) * cos(glm::radians(yaw));
-    front.y = sin(glm::radians(pitch));
-    front.z = cos(glm::radians(pitch)) * sin(glm::radians(yaw));
-    cameraFront = glm::normalize(front);
+    camera.MouseCallback(xoffset, yoffset, deltaTime);
 }
 
 int main()
@@ -137,7 +119,7 @@ int main()
     myShader.setInt("faceTexture", 2);
 
     glm::mat4 model = glm::rotate(glm::mat4(1.0f), glm::radians(-55.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-    glm::mat4 view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
+    glm::mat4 view = camera.GetViewMatrix();
     glm::mat4 projection = glm::perspective(glm::radians(45.0f), (float)SCREEN_WIDTH / SCREEN_HEIGHT, 0.1f, 100.0f);
 
     myShader.setMat4("model", model);
@@ -241,8 +223,7 @@ int main()
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         myShader.use();
-        view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
-        myShader.setMat4("view", view);
+        myShader.setMat4("view", camera.GetViewMatrix());
 
         for(int i = 0; i < 10; i++)
         {
