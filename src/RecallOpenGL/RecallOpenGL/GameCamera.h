@@ -20,6 +20,31 @@ public:
 
     glm::mat4 GetViewMatrix() const
     {
+        //手动计算View
+        /*glm::vec3 Look = -cameraFront;
+        glm::vec3 Right = glm::cross(cameraUp, Look);
+        glm::vec3 Up = glm::cross(Look, Right);
+
+        float values[16] = {
+            Right.x, Right.y, Right.z, 0.0f,
+            Up.x, Up.y, Up.z, 0.0f,
+            Look.x, Look.y, Look.z, 0.0f,
+            0.0f, 0.0f, 0.0f, 1.0f
+        };
+        glm::mat4 view1 = glm::make_mat4(values);
+
+        float values2[16] = {
+            1.0f, 0.0f, 0.0f, -cameraPos.x,
+            0.0f, 1.0f, 0.0f, -cameraPos.y,
+            0.0f, 0.0f, 1.0f, -cameraPos.z,
+            0.0f, 0.0f, 0.0f, 1.0f
+        };
+        glm::mat4 view2 = glm::make_mat4(values2);
+
+        view1 = glm::transpose(view1);
+        view2 = glm::transpose(view2);
+        return view1 * view2;*/
+
         return glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
     }
 
@@ -42,6 +67,8 @@ public:
         {
             cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
         }
+
+        cameraPos.y = 0.0f;
     }
 
     void MouseCallback(float xoffset, float yoffset, float deltaTime)
