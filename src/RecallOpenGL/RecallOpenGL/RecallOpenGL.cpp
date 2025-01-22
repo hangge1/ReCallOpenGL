@@ -12,6 +12,9 @@
 #include "Shader.h"
 #include "Texture.h"
 
+#define SCREEN_WIDTH 800
+#define SCREEN_HEIGHT 600
+
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
     glViewport(0, 0, width, height);
@@ -31,7 +34,7 @@ GLFWwindow* InitGLFW()
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     //glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
      
-    GLFWwindow* window = glfwCreateWindow(800, 600, "LearnOpenGL", NULL, NULL);
+    GLFWwindow* window = glfwCreateWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "LearnOpenGL", NULL, NULL);
     if (window == NULL)
     {
         std::cout << "Failed to create GLFW window" << std::endl;
@@ -57,15 +60,6 @@ int main()
     GLFWwindow* window = InitGLFW();
     if(!window) return -1;
 
-    /*glm::vec4 vec(1.0f, 0.0f, 0.0f, 1.0f);
-    glm::mat4 trans = glm::translate(glm::mat4(1.0f), glm::vec3(1.0f, 1.0f, 0.0f));
-    vec = trans * vec;
-    std::cout << vec.x << vec.y << vec.z << std::endl;*/
-    
-    //OpenGL矩阵是列主序, 与我们常人定义的矩阵往往存在转置
-    //但是glm本身也是列主序,不需要转置
-    //glm::mat4 trans = glm::rotate(glm::mat4(1.0f), glm::radians(90.0f), glm::vec3(0.0, 0.0, 1.0));
-    //trans = glm::scale(trans, glm::vec3(0.5, 0.5, 0.5));
 
     Shader myShader("shader/shader.vs", "shader/shader.fs");
     myShader.use();
@@ -78,6 +72,15 @@ int main()
 
     facetexture.use();
     myShader.setInt("faceTexture", 2);
+
+    glm::mat4 model = glm::rotate(glm::mat4(1.0f), glm::radians(-55.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+    glm::mat4 view = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -3.0f)); //物体往-z移动,相当于摄像机往+z移动
+    glm::mat4 projection = glm::perspective(glm::radians(45.0f), (float)SCREEN_WIDTH / SCREEN_HEIGHT, 0.1f, 100.0f);
+
+    myShader.setMat4("model", model);
+    myShader.setMat4("view", view);
+    myShader.setMat4("projection", projection);
+    
 
     float vertices[] = {
     //     ---- 位置 ----       ---- 颜色 ----     - 纹理坐标 -
@@ -129,20 +132,7 @@ int main()
 
         myShader.use();
         glBindVertexArray(VAO);
-
-        
-        glm::mat4 trans = glm::translate(glm::mat4(1.0f), glm::vec3(0.5f, -0.5f, 0.0f));
-        trans = glm::rotate(trans, (float)glfwGetTime(), glm::vec3(0.0f, 0.0f, 1.0f));
-        myShader.setMat4("transform", trans); 
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-
-
-        glm::mat4 trans2 = glm::translate(glm::mat4(1.0f), glm::vec3(-0.5f, 0.5f, 0.0f));
-        float scale = std::abs(glm::sin(glfwGetTime()));
-        trans2 = glm::scale(trans2, glm::vec3(scale, scale, 1.0f));
-        myShader.setMat4("transform", trans2); 
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-
 
         glfwSwapBuffers(window);
         glfwPollEvents();    
