@@ -9,9 +9,9 @@ uniform vec3 lightPos;
 uniform vec3 viewPos;
 
 struct Material {
-    vec3 ambient;
-    vec3 diffuse;
-    vec3 specular;
+    vec3 ambient; //环境光反射率
+    vec3 diffuse; //漫反射率
+    vec3 specular; //高光反射率
     float shininess;
 }; 
 uniform Material material;
