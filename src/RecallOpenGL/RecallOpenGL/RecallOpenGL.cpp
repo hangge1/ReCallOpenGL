@@ -234,11 +234,13 @@ int main()
     objShader.setFloat("light.linear",    0.09f);
     objShader.setFloat("light.quadratic", 0.032f);
 
+    
+
     while(!glfwWindowShouldClose(window))
     {
         processInput(window);
         // 渲染指令
-        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         objShader.use();
@@ -257,11 +259,11 @@ int main()
         //glm::mat4 objmodel = glm::translate(glm::mat4(1.0f), objPos);
         //objmodel = glm::scale(objmodel, glm::vec3(0.5f));
         objShader.use();
-        //objShader.setMat4("model", objmodel);
         objShader.setMat4("view", camera.GetViewMatrix());
+        objShader.setVec3("light.position",  camera.CameraPos());
+        objShader.setVec3("light.direction", camera.CameraFront());
+        objShader.setFloat("light.cutOff",   glm::cos(glm::radians(12.5f)));
 
-        //glBindVertexArray(lightVAO);
-        //glDrawArrays(GL_TRIANGLES, 0, 36);
         for(unsigned int i = 0; i < 10; i++)
         {
             glm::mat4 model(1.0f);

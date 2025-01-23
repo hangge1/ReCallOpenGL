@@ -90,6 +90,7 @@ public:
     }
     
     glm::vec3 CameraPos() const { return cameraPos; }
+    glm::vec3 CameraFront() const { return cameraFront; }
 
 private:
     glm::vec3 cameraPos;
