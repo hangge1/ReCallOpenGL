@@ -88,6 +88,8 @@ public:
         front.z = cos(glm::radians(pitch)) * sin(glm::radians(yaw));
         cameraFront = glm::normalize(front);
     }
+    
+    glm::vec3 CameraPos() const { return cameraPos; }
 
 private:
     glm::vec3 cameraPos;
