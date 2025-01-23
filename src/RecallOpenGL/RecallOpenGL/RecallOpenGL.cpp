@@ -227,6 +227,17 @@ int main()
         objShader.use();
         objShader.setMat4("model", objmodel);
         objShader.setMat4("view", camera.GetViewMatrix());
+
+        //变色效果
+        glm::vec3 lightColor;
+        lightColor.x = sin(glfwGetTime() * 2.0f);
+        lightColor.y = sin(glfwGetTime() * 0.7f);
+        lightColor.z = sin(glfwGetTime() * 1.3f);
+        glm::vec3 diffuseColor = lightColor   * glm::vec3(0.5f); // 降低影响
+        glm::vec3 ambientColor = diffuseColor * glm::vec3(0.2f); // 很低的影响
+        objShader.setVec3("light.ambient", ambientColor);
+        objShader.setVec3("light.diffuse", diffuseColor);
+
         glBindVertexArray(lightVAO);
         glDrawArrays(GL_TRIANGLES, 0, 36);
 
