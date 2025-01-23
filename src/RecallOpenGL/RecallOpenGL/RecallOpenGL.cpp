@@ -185,14 +185,20 @@ int main()
     Shader objShader("shader/objectshader.vs", "shader/objectshader.fs");
     objShader.use();
     objShader.setMat4("projection", projection);
-    objShader.setVec3("objectColor", {1.0f, 0.5f, 0.31f});
+    //objShader.setVec3("objectColor", {1.0f, 0.5f, 0.31f});
     objShader.setVec3("lightColor",  {1.0f, 1.0f, 1.0f});
-    
+    //设置物体材质属性
+    objShader.setVec3("material.ambient",  {1.0f, 0.5f, 0.31f});
+    objShader.setVec3("material.diffuse",  {1.0f, 0.5f, 0.31f});
+    objShader.setVec3("material.specular", {0.5f, 0.5f, 0.5f});
+    objShader.setFloat("material.shininess", 32.0f);
+    //设置光源对材质的影响因子
+    objShader.setVec3("light.ambient",  {0.2f, 0.2f, 0.2f});
+    objShader.setVec3("light.diffuse",  {0.5f, 0.5f, 0.5f}); // 将光照调暗了一些以搭配场景
+    objShader.setVec3("light.specular", {1.0f, 1.0f, 1.0f}); 
 
-    
-
-    glm::vec3 lightPos(1.0f, 1.0f, 1.0f);
-    glm::vec3 objPos(0.0f, 0.0f, -2.0f);
+    glm::vec3 lightPos(1.0f, 0.0f, 1.0f);
+    glm::vec3 objPos(0.0f, 0.0f, -1.0f);
 
     objShader.setVec3("lightPos", lightPos);
 
