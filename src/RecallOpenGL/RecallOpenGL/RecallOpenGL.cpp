@@ -201,40 +201,60 @@ int main()
     
     Shader objShader("shader/objectshader.vs", "shader/objectshader.fs");
     objShader.use();
-    objShader.setMat4("projection", projection);
-    //设置物体材质反射率属性
-    objShader.setVec3("material.ambient",  {1.0f, 0.5f, 0.31f});
-    objShader.setVec3("material.diffuse",  {1.0f, 0.5f, 0.31f});
-    objShader.setVec3("material.specular", {0.5f, 0.5f, 0.5f});
-    objShader.setFloat("material.shininess", 32.0f);
-    //设置光源颜色
-    objShader.setVec3("light.ambient",  {0.2f, 0.2f, 0.2f});
-    objShader.setVec3("light.diffuse",  {0.5f, 0.5f, 0.5f}); // 将光照调暗了一些以搭配场景
-    objShader.setVec3("light.specular", {1.0f, 1.0f, 1.0f}); 
-
-    glm::vec3 lightPos(5.0f, 1.0f, 1.0f);
-    glm::vec3 objPos(0.0f, 0.0f, 0.0f);
-
-    objShader.setVec3("lightPos", lightPos);
 
     //漫反射贴图
     Texture diffuseTexture("resource/container2.png", 1);
     //高光贴图
     Texture SpecularTexture("resource/container2_specular.png", 2);
-
     diffuseTexture.use();
     objShader.setInt("material.diffuse", 1);
- 
     SpecularTexture.use();
     objShader.setInt("material.specular", 2);
 
-    //objShader.setVec3("light.direction", {-0.2f, -1.0f, -0.3f});
+    objShader.setMat4("projection", projection);
 
-    objShader.setFloat("light.constant",  1.0f);
-    objShader.setFloat("light.linear",    0.09f);
-    objShader.setFloat("light.quadratic", 0.032f);
-
+    //设置材质
+    objShader.setVec3("material.ambient",  {1.0f, 0.5f, 0.31f});
+    objShader.setVec3("material.diffuse",  {1.0f, 0.5f, 0.31f});
+    objShader.setVec3("material.specular", {0.5f, 0.5f, 0.5f});
+    objShader.setFloat("material.shininess", 32.0f);
     
+    //设置方向光源
+    objShader.setVec3("dirLight.direction", {-0.2f, -1.0f, -0.3f});
+    objShader.setVec3("dirLight.ambient",  {0.2f, 0.2f, 0.2f});
+    objShader.setVec3("dirLight.diffuse",  {0.5f, 0.5f, 0.5f}); 
+    objShader.setVec3("dirLight.specular", {1.0f, 1.0f, 1.0f}); 
+ 
+    //设置点光源
+    glm::vec3 pointLightPositions[] = {
+        glm::vec3( 0.7f,  0.2f,  2.0f),
+        glm::vec3( 2.3f, -3.3f, -4.0f),
+        glm::vec3(-4.0f,  2.0f, -12.0f),
+        glm::vec3( 0.0f,  0.0f, -3.0f)
+    };
+
+    for(int i = 0; i < 4; i++)
+    {
+        std::string n = std::to_string(i);
+        objShader.setVec3("pointLights[" + n + "].position", pointLightPositions[i]);
+        objShader.setFloat("pointLights[" + n + "].constant", 1.0f);
+        objShader.setFloat("pointLights[" + n + "].linear", 0.09f);
+        objShader.setFloat("pointLights[" + n + "].quadratic", 0.032f);
+        objShader.setVec3("pointLights[" + n + "].ambient",  {0.2f, 0.2f, 0.2f});
+        objShader.setVec3("pointLights[" + n + "].diffuse",  {0.5f, 0.5f, 0.5f});
+        objShader.setVec3("pointLights[" + n + "].specular", {1.0f, 1.0f, 1.0f});
+    }
+
+    //设置聚光源
+    objShader.setVec3("spotlight.position", camera.CameraPos());
+    objShader.setVec3("spotlight.direction", camera.CameraFront());
+    objShader.setFloat("spotlight.cutOff", glm::cos(glm::radians(12.5f)));
+    objShader.setFloat("spotlight.outerCutOff", glm::cos(glm::radians(17.5f)));
+    objShader.setVec3("spotlight.ambient",  {0.2f, 0.2f, 0.2f});
+    objShader.setVec3("spotlight.diffuse",  {0.5f, 0.5f, 0.5f}); 
+    objShader.setVec3("spotlight.specular", {1.0f, 1.0f, 1.0f}); 
+
+    glm::vec3 objPos(0.0f, 0.0f, 0.0f);
 
     while(!glfwWindowShouldClose(window))
     {
@@ -243,27 +263,25 @@ int main()
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        objShader.use();
-        objShader.setVec3("viewPos",  camera.CameraPos());
-
         //绘制光源
-        glm::mat4 lightmodel = glm::translate(glm::mat4(1.0f), lightPos);
-        lightmodel = glm::scale(lightmodel, glm::vec3(0.1f));
-        lightShader.use();
-        lightShader.setMat4("view", camera.GetViewMatrix());
-        lightShader.setMat4("model", lightmodel);
-        glBindVertexArray(lightVAO);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
+        for(int i = 0; i < 4; i++)
+        {
+            glm::mat4 lightmodel = glm::translate(glm::mat4(1.0f), pointLightPositions[i]);
+            lightmodel = glm::scale(lightmodel, glm::vec3(0.1f));
+            lightShader.use();
+            lightShader.setMat4("view", camera.GetViewMatrix());
+            lightShader.setMat4("model", lightmodel);
+            glBindVertexArray(lightVAO);
+            glDrawArrays(GL_TRIANGLES, 0, 36);
+        }
+        
         
         //绘制物体
-        //glm::mat4 objmodel = glm::translate(glm::mat4(1.0f), objPos);
-        //objmodel = glm::scale(objmodel, glm::vec3(0.5f));
         objShader.use();
+        objShader.setVec3("viewPos",  camera.CameraPos());
         objShader.setMat4("view", camera.GetViewMatrix());
-        objShader.setVec3("light.position",  camera.CameraPos());
-        objShader.setVec3("light.direction", camera.CameraFront());
-        objShader.setFloat("light.cutOff",   glm::cos(glm::radians(12.5f)));
-        objShader.setFloat("light.outerCutOff",   glm::cos(glm::radians(17.5f)));
+        objShader.setVec3("spotlight.position", camera.CameraPos());
+        objShader.setVec3("spotlight.direction", camera.CameraFront());
 
         for(unsigned int i = 0; i < 10; i++)
         {
