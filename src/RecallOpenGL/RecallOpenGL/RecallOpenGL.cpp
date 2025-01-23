@@ -151,6 +151,20 @@ int main()
         -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f, 1.0f
     };
 
+    glm::vec3 cubePositions[] = 
+    {
+        glm::vec3( 0.0f,  0.0f,  0.0f),
+        glm::vec3( 2.0f,  5.0f, -15.0f),
+        glm::vec3(-1.5f, -2.2f, -2.5f),
+        glm::vec3(-3.8f, -2.0f, -12.3f),
+        glm::vec3( 2.4f, -0.4f, -3.5f),
+        glm::vec3(-1.7f,  3.0f, -7.5f),
+        glm::vec3( 1.3f, -2.0f, -2.5f),
+        glm::vec3( 1.5f,  2.0f, -2.5f),
+        glm::vec3( 1.5f,  0.2f, -1.5f),
+        glm::vec3(-1.3f,  1.0f, -1.5f)
+    };
+
 
     unsigned int indices[] = 
     {
@@ -188,8 +202,6 @@ int main()
     Shader objShader("shader/objectshader.vs", "shader/objectshader.fs");
     objShader.use();
     objShader.setMat4("projection", projection);
-    //objShader.setVec3("objectColor", {1.0f, 0.5f, 0.31f});
-    //objShader.setVec3("lightColor",  {1.0f, 1.0f, 1.0f});
     //设置物体材质反射率属性
     objShader.setVec3("material.ambient",  {1.0f, 0.5f, 0.31f});
     objShader.setVec3("material.diffuse",  {1.0f, 0.5f, 0.31f});
@@ -216,6 +228,7 @@ int main()
     SpecularTexture.use();
     objShader.setInt("material.specular", 2);
 
+    objShader.setVec3("light.direction", {-0.2f, -1.0f, -0.3f});
 
     while(!glfwWindowShouldClose(window))
     {
@@ -228,24 +241,33 @@ int main()
         objShader.setVec3("viewPos",  camera.CameraPos());
 
         //绘制光源
-        glm::mat4 lightmodel = glm::translate(glm::mat4(1.0f), lightPos);
-        lightmodel = glm::scale(lightmodel, glm::vec3(0.2f));
-        lightShader.use();
-        lightShader.setMat4("view", camera.GetViewMatrix());
-        lightShader.setMat4("model", lightmodel);
-        glBindVertexArray(lightVAO);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
+        //glm::mat4 lightmodel = glm::translate(glm::mat4(1.0f), lightPos);
+        //lightmodel = glm::scale(lightmodel, glm::vec3(0.2f));
+        //lightShader.use();
+        //lightShader.setMat4("view", camera.GetViewMatrix());
+        //lightShader.setMat4("model", lightmodel);
+        //glBindVertexArray(lightVAO);
+        //glDrawArrays(GL_TRIANGLES, 0, 36);
         
         //绘制物体
-        glm::mat4 objmodel = glm::translate(glm::mat4(1.0f), objPos);
-        objmodel = glm::scale(objmodel, glm::vec3(0.5f));
+        //glm::mat4 objmodel = glm::translate(glm::mat4(1.0f), objPos);
+        //objmodel = glm::scale(objmodel, glm::vec3(0.5f));
         objShader.use();
-        objShader.setMat4("model", objmodel);
+        //objShader.setMat4("model", objmodel);
         objShader.setMat4("view", camera.GetViewMatrix());
 
-        glBindVertexArray(lightVAO);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
-
+        //glBindVertexArray(lightVAO);
+        //glDrawArrays(GL_TRIANGLES, 0, 36);
+        for(unsigned int i = 0; i < 10; i++)
+        {
+            glm::mat4 model(1.0f);
+            model = glm::translate(model, cubePositions[i]);
+            float angle = 20.0f * i;
+            model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
+            objShader.setMat4("model", model);
+            glBindVertexArray(lightVAO);
+            glDrawArrays(GL_TRIANGLES, 0, 36);
+        }
 
 
         glfwSwapBuffers(window);

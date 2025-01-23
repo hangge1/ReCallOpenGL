@@ -16,7 +16,8 @@ struct Material {
 uniform Material material;
 
 struct Light {
-    vec3 position;
+    //vec3 position;
+    vec3 direction; //定向光
 
     vec3 ambient;
     vec3 diffuse;
@@ -28,7 +29,8 @@ uniform Light light;
 void main()
 {
     vec3 norm = normalize(Normal);
-    vec3 lightDir = normalize(lightPos - FragPos);
+    //vec3 lightDir = normalize(lightPos - FragPos);
+    vec3 lightDir = normalize(-light.direction);
     vec3 viewDir = normalize(viewPos - FragPos);
     vec3 reflectDir = reflect(-lightDir, norm);
 
