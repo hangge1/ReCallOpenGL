@@ -212,7 +212,7 @@ int main()
     objShader.setVec3("light.diffuse",  {0.5f, 0.5f, 0.5f}); // 将光照调暗了一些以搭配场景
     objShader.setVec3("light.specular", {1.0f, 1.0f, 1.0f}); 
 
-    glm::vec3 lightPos(1.0f, 1.0f, 1.0f);
+    glm::vec3 lightPos(5.0f, 1.0f, 1.0f);
     glm::vec3 objPos(0.0f, 0.0f, 0.0f);
 
     objShader.setVec3("lightPos", lightPos);
@@ -228,7 +228,11 @@ int main()
     SpecularTexture.use();
     objShader.setInt("material.specular", 2);
 
-    objShader.setVec3("light.direction", {-0.2f, -1.0f, -0.3f});
+    //objShader.setVec3("light.direction", {-0.2f, -1.0f, -0.3f});
+
+    objShader.setFloat("light.constant",  1.0f);
+    objShader.setFloat("light.linear",    0.09f);
+    objShader.setFloat("light.quadratic", 0.032f);
 
     while(!glfwWindowShouldClose(window))
     {
@@ -241,13 +245,13 @@ int main()
         objShader.setVec3("viewPos",  camera.CameraPos());
 
         //绘制光源
-        //glm::mat4 lightmodel = glm::translate(glm::mat4(1.0f), lightPos);
-        //lightmodel = glm::scale(lightmodel, glm::vec3(0.2f));
-        //lightShader.use();
-        //lightShader.setMat4("view", camera.GetViewMatrix());
-        //lightShader.setMat4("model", lightmodel);
-        //glBindVertexArray(lightVAO);
-        //glDrawArrays(GL_TRIANGLES, 0, 36);
+        glm::mat4 lightmodel = glm::translate(glm::mat4(1.0f), lightPos);
+        lightmodel = glm::scale(lightmodel, glm::vec3(0.1f));
+        lightShader.use();
+        lightShader.setMat4("view", camera.GetViewMatrix());
+        lightShader.setMat4("model", lightmodel);
+        glBindVertexArray(lightVAO);
+        glDrawArrays(GL_TRIANGLES, 0, 36);
         
         //绘制物体
         //glm::mat4 objmodel = glm::translate(glm::mat4(1.0f), objPos);
