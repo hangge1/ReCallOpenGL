@@ -263,6 +263,7 @@ int main()
         objShader.setVec3("light.position",  camera.CameraPos());
         objShader.setVec3("light.direction", camera.CameraFront());
         objShader.setFloat("light.cutOff",   glm::cos(glm::radians(12.5f)));
+        objShader.setFloat("light.outerCutOff",   glm::cos(glm::radians(17.5f)));
 
         for(unsigned int i = 0; i < 10; i++)
         {
